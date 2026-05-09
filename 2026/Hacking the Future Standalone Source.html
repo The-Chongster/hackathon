@@ -1,0 +1,926 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Hacking the Future — Chongster Internal Hackathon</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;700&family=Inter:wght@300;400;500;600;700&family=Anton&family=Oswald:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<style>
+  :root{
+    --navy:#091f51; --blue:#6aa0f9; --mid:#3461c7;
+    --blue-rgb:106,160,249;
+    --mid-rgb:52,97,199;
+    --navy-rgb:9,31,81;
+    --gold:#f5c842; --gold-2:#fff8c0;
+    --bg:#060608; --surface:#0b0c12; --surface-2:#0e1018;
+    --border:#1a1b24; --text:#eeeef2; --muted:#9a9ab0;
+    --font-body:'Inter',system-ui,sans-serif;
+    --font-body-weight:400;
+    --font-display:'Bebas Neue',sans-serif;
+    --section-pad:120px;
+    --grad-btn:linear-gradient(135deg,var(--mid),var(--navy));
+    --grad-btn-shadow:0 4px 24px rgba(var(--mid-rgb),0.4);
+    --grad-divider:linear-gradient(90deg,transparent,rgba(var(--blue-rgb),.15) 30%,rgba(var(--blue-rgb),.15) 70%,transparent);
+    --grad-blob:radial-gradient(circle, rgba(var(--blue-rgb),.1) 0%, transparent 65%);
+  }
+  /* Accent palettes */
+  :root[data-accent="violet"]{--navy:#2a1454;--blue:#b78cf9;--mid:#7a4ad9;--blue-rgb:183,140,249;--mid-rgb:122,74,217;--navy-rgb:42,20,84}
+  :root[data-accent="emerald"]{--navy:#0a3a2a;--blue:#5fe0a8;--mid:#1f8a5b;--blue-rgb:95,224,168;--mid-rgb:31,138,91;--navy-rgb:10,58,42}
+  :root[data-accent="crimson"]{--navy:#510914;--blue:#ff8a8a;--mid:#c73443;--blue-rgb:255,138,138;--mid-rgb:199,52,67;--navy-rgb:81,9,20}
+  :root[data-accent="amber"]{--navy:#4a2a05;--blue:#ffc36a;--mid:#c77a1f;--blue-rgb:255,195,106;--mid-rgb:199,122,31;--navy-rgb:74,42,5}
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--bg);color:var(--text);font-family:var(--font-body);font-weight:var(--font-body-weight);line-height:1.55;-webkit-font-smoothing:antialiased}
+  body{overflow-x:hidden}
+  a{color:inherit;text-decoration:none}
+  .mono{font-family:'JetBrains Mono',ui-monospace,monospace;letter-spacing:.12em;text-transform:uppercase;font-size:12px}
+  .display{font-family:'Bebas Neue',sans-serif;line-height:.9;letter-spacing:.01em}
+  .container{max-width:1240px;margin:0 auto;padding:0 32px}
+  .divider{height:1px;background:var(--grad-divider);width:100%}
+
+  /* ---------- NAV ---------- */
+  nav{position:fixed;top:0;left:0;right:0;z-index:50;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);background:rgba(6,6,8,.65);border-bottom:1px solid var(--border)}
+  nav .inner{display:flex;align-items:center;justify-content:space-between;height:68px;gap:24px}
+  .logo{font-family:'JetBrains Mono',monospace;color:var(--blue);font-size:14px;letter-spacing:.18em;text-transform:uppercase;font-weight:600;display:flex;align-items:center;gap:10px;flex-shrink:0}
+  .logo .sq{width:14px;height:14px;background:linear-gradient(135deg,var(--blue),var(--mid));border-radius:3px;box-shadow:0 0 12px rgba(var(--blue-rgb),.6)}
+  .logo img.brand{width:30px;height:30px;border-radius:7px;display:block;object-fit:cover;box-shadow:0 0 0 1px var(--border),0 0 18px rgba(var(--blue-rgb),.18)}
+  .foot-mark{display:flex;align-items:center;gap:14px;margin-bottom:16px}
+  .foot-mark img{width:40px;height:40px;border-radius:8px;display:block;box-shadow:0 0 0 1px var(--border)}
+  .foot-mark .name{font-family:'JetBrains Mono',monospace;color:var(--text);font-size:12px;letter-spacing:.18em;text-transform:uppercase;font-weight:600}
+  .nav-links{display:flex;gap:36px}
+  .nav-links a{color:var(--muted);font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.14em;font-size:12px;transition:color .2s}
+  .nav-links a:hover{color:var(--text)}
+  .nav-right{display:flex;align-items:center;gap:18px;flex-shrink:0}
+
+  /* lang switcher */
+  .lang{display:inline-flex;align-items:center;border:1px solid var(--border);border-radius:999px;background:rgba(11,12,18,.6);padding:3px;gap:0}
+  .lang button{appearance:none;border:0;background:transparent;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);padding:6px 10px;border-radius:999px;display:inline-flex;align-items:center;gap:6px;transition:color .2s,background .2s}
+  .lang button.on{background:rgba(106,160,249,.12);color:var(--blue)}
+  .lang button:hover{color:var(--text)}
+  .lang .flag{width:14px;height:10px;border-radius:1.5px;display:inline-block;flex-shrink:0;overflow:hidden}
+  .flag-gb{background:
+    linear-gradient(45deg,transparent 47.5%,#fff 47.5% 52.5%,transparent 52.5%),
+    linear-gradient(-45deg,transparent 47.5%,#fff 47.5% 52.5%,transparent 52.5%),
+    linear-gradient(45deg,transparent 49%,#cf142b 49% 51%,transparent 51%),
+    linear-gradient(-45deg,transparent 49%,#cf142b 49% 51%,transparent 51%),
+    linear-gradient(0deg,transparent 42%,#fff 42% 58%,transparent 58%),
+    linear-gradient(90deg,transparent 42%,#fff 42% 58%,transparent 58%),
+    linear-gradient(0deg,transparent 45%,#cf142b 45% 55%,transparent 55%),
+    linear-gradient(90deg,transparent 45%,#cf142b 45% 55%,transparent 55%),
+    #00247d}
+  .flag-vn{background:#da251d;position:relative}
+  .flag-vn::after{content:"★";position:absolute;inset:0;color:#ff0;font-size:8px;display:flex;align-items:center;justify-content:center;line-height:1}
+
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.14em;font-size:12px;font-weight:500;padding:12px 22px;border-radius:6px;border:1px solid transparent;cursor:pointer;transition:transform .15s ease, box-shadow .2s ease;color:#fff}
+  .btn-primary{background:var(--grad-btn);box-shadow:var(--grad-btn-shadow)}
+  .btn-primary:hover{transform:translateY(-1px);box-shadow:0 6px 28px rgba(52,97,199,.55)}
+  .btn-ghost{background:transparent;border-color:rgba(106,160,249,.5);color:var(--blue)}
+  .btn-ghost:hover{border-color:var(--blue);background:rgba(106,160,249,.06)}
+  .btn-lg{padding:16px 28px;font-size:13px}
+
+  /* ---------- HERO ---------- */
+  .hero{position:relative;padding:160px 0 120px;overflow:hidden}
+  .grid-bg{position:absolute;inset:0;background-image:linear-gradient(rgba(106,160,249,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(106,160,249,.04) 1px,transparent 1px);background-size:64px 64px;mask-image:radial-gradient(ellipse at center,black 30%,transparent 80%);-webkit-mask-image:radial-gradient(ellipse at center,black 30%,transparent 80%);pointer-events:none}
+  .blob{position:absolute;width:900px;height:900px;background:var(--grad-blob);pointer-events:none;border-radius:50%}
+  .blob.tr{top:-300px;right:-200px}
+  .blob.bl{bottom:-300px;left:-300px;width:700px;height:700px;background:radial-gradient(circle,rgba(52,97,199,.12),transparent 65%)}
+  .hero-grid{position:relative;display:grid;grid-template-columns:1.05fr 1fr;gap:80px;align-items:center}
+
+  .pill{display:inline-flex;align-items:center;gap:10px;padding:8px 14px;border:1px solid var(--border);border-radius:999px;background:rgba(11,12,18,.6);font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--text)}
+  .pulse{width:8px;height:8px;border-radius:50%;background:var(--blue);position:relative;box-shadow:0 0 10px var(--blue)}
+  .pulse::after{content:"";position:absolute;inset:-4px;border-radius:50%;background:rgba(106,160,249,.4);animation:pulse 1.8s infinite}
+  @keyframes pulse{0%{transform:scale(.8);opacity:.7}70%{transform:scale(2);opacity:0}100%{transform:scale(2);opacity:0}}
+
+  h1.hero-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(64px,9vw,140px);line-height:.88;letter-spacing:.005em;margin:24px 0 18px}
+  h1.hero-title .blue{color:var(--blue);background:linear-gradient(180deg,var(--blue),var(--mid));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .subtitle{color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:13px;letter-spacing:.06em;text-transform:none;max-width:520px;line-height:1.7}
+  .date-pill{display:inline-flex;align-items:center;gap:10px;margin-top:24px;padding:10px 16px;border:1px solid rgba(106,160,249,.25);background:rgba(106,160,249,.06);border-radius:999px;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--blue)}
+
+  /* mini-stats replace countdown */
+  .stats{margin-top:40px;display:grid;grid-template-columns:repeat(3,1fr);gap:14px;max-width:520px}
+  .stat{padding:18px 16px;border:1px solid var(--border);border-radius:10px;background:linear-gradient(180deg,rgba(11,12,18,.9),rgba(6,6,8,.4))}
+  .stat .k{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+  .stat .v{font-family:'Bebas Neue',sans-serif;font-size:38px;line-height:1;background:linear-gradient(180deg,#fff,var(--blue));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:.02em}
+
+  .cta-row{display:flex;gap:14px;margin-top:36px;flex-wrap:wrap}
+
+  /* ---------- HERO ART ---------- */
+  .hero-art{position:relative;aspect-ratio:1/1;width:100%;max-width:560px;margin-left:auto}
+  .hero-art svg{width:100%;height:100%;display:block;filter:drop-shadow(0 0 60px rgba(106,160,249,.15))}
+
+  /* ---------- SECTION CHROME ---------- */
+  section{position:relative;padding:120px 0}
+  .sec-label{font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--blue);margin-bottom:18px}
+  h2.sec-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(48px,6vw,84px);line-height:.92;letter-spacing:.005em;max-width:14ch}
+  .sec-intro{margin-top:18px;color:var(--muted);max-width:560px;font-size:16px;line-height:1.7}
+  .sec-head{margin-bottom:64px}
+
+  /* ---------- RULES ---------- */
+  .rules-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+  .rule-card{position:relative;padding:32px 28px 36px;border:1px solid var(--border);border-radius:12px;background:var(--surface);overflow:hidden;transition:transform .25s,border-color .25s}
+  .rule-card::before{content:"";position:absolute;inset:0;background:linear-gradient(135deg,rgba(106,160,249,.08),transparent 50%);opacity:0;transition:opacity .3s;pointer-events:none}
+  .rule-card:hover::before{opacity:1}
+  .rule-card:hover{transform:translateY(-3px);border-color:rgba(106,160,249,.3)}
+  .rule-num{font-family:'Bebas Neue',sans-serif;font-size:88px;line-height:.9;color:rgba(106,160,249,.18);letter-spacing:.01em}
+  .rule-title{margin-top:8px;font-family:'JetBrains Mono',monospace;color:var(--blue);font-size:13px;letter-spacing:.14em;text-transform:uppercase;font-weight:500}
+  .rule-body{margin-top:14px;color:var(--muted);font-size:14.5px;line-height:1.7}
+
+  /* ---------- CHALLENGES ---------- */
+  .challenges{background:#08090f}
+  .ch-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+  .ch-card{position:relative;padding:48px 36px;border:1px solid var(--border);border-radius:12px;background:var(--surface);overflow:hidden;min-height:300px;display:flex;flex-direction:column;justify-content:flex-end}
+  .ch-card::before{content:"";position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--blue),transparent)}
+  .ch-card::after{content:"";position:absolute;bottom:-120px;right:-120px;width:300px;height:300px;background:var(--grad-blob);pointer-events:none;border-radius:50%}
+  .ch-badge{font-family:'JetBrains Mono',monospace;color:var(--blue);font-size:12px;letter-spacing:.16em;text-transform:uppercase;margin-bottom:20px;position:relative}
+  .ch-title{font-family:'Bebas Neue',sans-serif;font-size:64px;line-height:.92;position:relative}
+  .ch-tbd{margin-top:14px;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);position:relative}
+
+  /* ---------- FORMAT (replaces schedule) ---------- */
+  .format-grid{display:grid;grid-template-columns:1.1fr 1fr;gap:64px;align-items:start}
+  .format-list{display:flex;flex-direction:column;gap:8px}
+  .fmt-row{display:grid;grid-template-columns:120px 1fr;gap:32px;padding:24px 0;border-bottom:1px solid rgba(26,27,36,.6);align-items:start}
+  .fmt-row:last-child{border-bottom:0}
+  .fmt-row .k{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);padding-top:6px}
+  .fmt-row .v-title{font-family:'Bebas Neue',sans-serif;font-size:36px;line-height:1;letter-spacing:.01em;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+  .fmt-row .v-desc{margin-top:8px;color:var(--muted);font-size:15px;line-height:1.7}
+  .badge{display:inline-flex;align-items:center;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.16em;text-transform:uppercase;padding:5px 10px;border-radius:4px;background:var(--grad-btn);color:#fff;box-shadow:0 2px 12px rgba(52,97,199,.35)}
+
+  .demo-card{position:relative;padding:40px 36px;border:1px solid var(--border);border-radius:14px;background:linear-gradient(180deg,rgba(11,12,18,.9),rgba(6,6,8,.6));overflow:hidden}
+  .demo-card::before{content:"";position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--blue),transparent)}
+  .demo-card::after{content:"";position:absolute;bottom:-140px;left:-100px;width:340px;height:340px;background:var(--grad-blob);pointer-events:none;border-radius:50%}
+  .demo-card .lbl{position:relative;font-family:'JetBrains Mono',monospace;color:var(--blue);font-size:12px;letter-spacing:.18em;text-transform:uppercase;margin-bottom:22px}
+  .demo-card .big{position:relative;font-family:'Bebas Neue',sans-serif;font-size:clamp(64px,9vw,108px);line-height:.9;letter-spacing:.01em}
+  .demo-card .big .blue{color:var(--blue);background:linear-gradient(180deg,var(--blue),var(--mid));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .demo-card .meta{position:relative;display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:32px;padding-top:24px;border-top:1px solid var(--border)}
+  .demo-card .meta .k{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+  .demo-card .meta .v{font-family:'Bebas Neue',sans-serif;font-size:30px;line-height:1;letter-spacing:.02em;color:var(--text)}
+
+  /* ---------- PRIZES ---------- */
+  .prizes{position:relative;text-align:center;overflow:hidden;background:#08090f}
+  .prizes .center-blob{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:1100px;height:1100px;background:radial-gradient(circle,rgba(9,31,81,.6),rgba(52,97,199,.18) 35%,transparent 70%);pointer-events:none;border-radius:50%}
+  .prize-box{position:relative;max-width:780px;margin:48px auto 0;padding:64px 40px 56px;border:1px solid var(--border);border-radius:14px;background:linear-gradient(180deg,rgba(11,12,18,.9),rgba(6,6,8,.92));overflow:hidden}
+  .prize-box::before{content:"";position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),var(--gold-2),var(--gold),transparent)}
+  .prize-box .ghost-pound{position:absolute;font-family:'Bebas Neue',sans-serif;font-size:520px;line-height:.8;color:rgba(245,200,66,.04);top:50%;left:50%;transform:translate(-50%,-46%);pointer-events:none}
+  .prize-headline{position:relative;font-family:'Bebas Neue',sans-serif;font-size:clamp(72px,10vw,128px);line-height:.88;background:linear-gradient(180deg,var(--gold),var(--gold-2),var(--gold));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:.02em}
+  .prize-amount{position:relative;margin-top:14px;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--muted)}
+  .share-grid{position:relative;margin-top:40px;display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+  .share{padding:22px 14px;border:1px solid var(--border);border-radius:10px;background:rgba(6,6,8,.6);text-align:left}
+  .share .place{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+  .share .pct{font-family:'Bebas Neue',sans-serif;font-size:46px;line-height:1;letter-spacing:.01em}
+  .share.gold .place{color:var(--gold)}
+  .share.gold .pct{background:linear-gradient(180deg,var(--gold),var(--gold-2),var(--gold));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .share .who{margin-top:8px;color:var(--muted);font-size:13px;line-height:1.5}
+  .prize-foot{position:relative;margin-top:32px;color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase}
+
+  /* ---------- JOIN CTA ---------- */
+  .join{background:#08090f;text-align:center}
+  .join-card{max-width:680px;margin:0 auto;padding:64px 48px;border:1px solid var(--border);border-radius:14px;background:var(--surface);position:relative;overflow:hidden}
+  .join-card::before{content:"";position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--blue),transparent)}
+  .join-card::after{content:"";position:absolute;width:600px;height:600px;background:var(--grad-blob);bottom:-300px;right:-200px;border-radius:50%;pointer-events:none}
+  .join-icon{position:relative;display:inline-flex;width:56px;height:56px;border-radius:14px;background:linear-gradient(135deg,#3461c7,#091f51);align-items:center;justify-content:center;margin-bottom:24px;box-shadow:0 8px 32px rgba(52,97,199,.45)}
+  .join-icon svg{width:30px;height:30px}
+  .join-h{position:relative;font-family:'Bebas Neue',sans-serif;font-size:clamp(48px,6vw,80px);line-height:.92;letter-spacing:.01em}
+  .join-sub{position:relative;margin-top:16px;color:var(--muted);font-size:16px;line-height:1.7;max-width:480px;margin-left:auto;margin-right:auto}
+  .join-channel{position:relative;display:inline-flex;align-items:center;gap:10px;margin-top:28px;padding:14px 22px;border:1px solid rgba(106,160,249,.3);border-radius:8px;background:rgba(106,160,249,.06);font-family:'JetBrains Mono',monospace;font-size:14px;letter-spacing:.1em;color:var(--blue)}
+  .join-foot{position:relative;margin-top:24px;color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase}
+
+  /* ---------- FOOTER ---------- */
+  footer{position:relative;padding:48px 0 56px;border-top:0}
+  footer::before{content:"";position:absolute;top:0;left:0;right:0;height:1px;background:var(--grad-divider)}
+  .foot-grid{display:flex;justify-content:space-between;align-items:flex-start;gap:32px;flex-wrap:wrap;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+  .foot-grid .col b{color:var(--text);font-weight:500;display:block;margin-bottom:8px}
+  .foot-grid p{line-height:1.9}
+
+  @media (max-width:1024px){
+    .hero-grid{grid-template-columns:1fr;gap:60px}
+    .hero-art{margin:0 auto}
+    .rules-grid{grid-template-columns:repeat(2,1fr)}
+    .ch-grid{grid-template-columns:1fr}
+    .format-grid{grid-template-columns:1fr;gap:40px}
+    .share-grid{grid-template-columns:repeat(2,1fr)}
+  }
+  @media (max-width:640px){
+    .container{padding:0 20px}
+    section{padding:88px 0}
+    .nav-links{display:none}
+    .rules-grid{grid-template-columns:1fr}
+    .stats{grid-template-columns:repeat(3,1fr);gap:8px}
+    .stat{padding:14px 10px}
+    .stat .v{font-size:28px}
+    .fmt-row{grid-template-columns:1fr;gap:6px}
+    .fmt-row .k{padding-top:0}
+    .join-card{padding:40px 24px}
+  }
+</style>
+</head>
+<body style="font-family: Inter">
+
+<template id="__bundler_thumbnail" data-bg-color="#060608">
+  <svg viewBox="0 0 600 600" xmlns="http://www.w3.org/2000/svg">
+    <rect width="600" height="600" fill="#060608"/>
+    <circle cx="300" cy="300" r="180" fill="none" stroke="#6aa0f9" stroke-width="6" opacity=".25"/>
+    <circle cx="300" cy="300" r="220" fill="none" stroke="#3461c7" stroke-width="3" opacity=".18"/>
+    <text x="300" y="320" text-anchor="middle" font-family="Bebas Neue, Impact, sans-serif" font-size="180" font-weight="700" fill="#6aa0f9" letter-spacing="6">HTF</text>
+    <text x="300" y="380" text-anchor="middle" font-family="ui-monospace, Menlo, monospace" font-size="20" fill="#9a9ab0" letter-spacing="6">HACKING THE FUTURE</text>
+  </svg>
+</template>
+
+<!-- NAV -->
+<nav>
+  <div class="container inner">
+    <div class="logo"><img src="assets/chongster-logo.png" alt="Chongster" class="brand"/> Chongster // HTF</div>
+    <div class="nav-links">
+      <a href="#rules" data-i18n="nav.rules">Rules</a>
+      <a href="#challenges" data-i18n="nav.challenges">Challenges</a>
+      <a href="#format" data-i18n="nav.format">Format</a>
+      <a href="#prizes" data-i18n="nav.prizes">Prizes</a>
+    </div>
+    <div class="nav-right">
+      <div class="lang" role="tablist" aria-label="Language">
+        <button type="button" data-lang="en" class="on"><span class="flag flag-gb"></span>EN</button>
+        <button type="button" data-lang="vi"><span class="flag flag-vn"></span>VI</button>
+      </div>
+      <a href="#join" class="btn btn-primary" data-i18n="nav.cta">Join on Slack</a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<header class="hero" data-screen-label="Hero">
+  <div class="grid-bg"></div>
+  <div class="blob tr"></div>
+  <div class="blob bl"></div>
+  <div class="container hero-grid">
+    <div>
+      <span class="pill"><span class="pulse"></span><span data-i18n="hero.tag">Chongster Internal Hackathon</span></span>
+      <h1 class="hero-title" style="font-family: &quot;Bebas Neue&quot; !important;"><span data-i18n="hero.title1">Hacking</span><br/><span class="blue" data-i18n="hero.title2">the Future</span></h1>
+      <p class="subtitle" data-i18n="hero.sub" style="font-family: Inter !important;">// One weekend. Any team size. Build something that shouldn't be possible yet — and ship it before the demo.</p>
+      <span class="date-pill">◆ <span data-i18n="hero.date">Date TBD · Watch Slack for the announcement</span></span>
+
+      <div class="stats">
+        <div class="stat"><div class="k" data-i18n="stat.team.k">Team Size</div><div class="v" data-i18n="stat.team.v">1–∞</div></div>
+        <div class="stat"><div class="k" data-i18n="stat.demo.k">Demo Day</div><div class="v" data-i18n="stat.demo.v">Sunday</div></div>
+        <div class="stat"><div class="k" data-i18n="stat.lang.k">Language</div><div class="v" data-i18n="stat.lang.v">English</div></div>
+      </div>
+
+      <div class="cta-row">
+        <a href="#join" class="btn btn-primary btn-lg" data-i18n="hero.cta1">Reply on Slack →</a>
+        <a href="#rules" class="btn btn-ghost btn-lg" data-i18n="hero.cta2">Read the Rules</a>
+      </div>
+    </div>
+
+    <!-- HOODED HACKER ILLUSTRATION (v2 — clearer) -->
+    <div class="hero-art">
+      <svg viewBox="0 0 600 600" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <defs>
+          <radialGradient id="screenGlow" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#cfe1ff" stop-opacity="1"/>
+            <stop offset="40%" stop-color="#6aa0f9" stop-opacity=".75"/>
+            <stop offset="100%" stop-color="#091f51" stop-opacity="0"/>
+          </radialGradient>
+          <linearGradient id="screenLcd" x1="0" x2="0" y1="0" y2="1">
+            <stop offset="0%" stop-color="#a9c8ff"/>
+            <stop offset="100%" stop-color="#3461c7"/>
+          </linearGradient>
+          <radialGradient id="ambient" cx="50%" cy="58%" r="62%">
+            <stop offset="0%" stop-color="#3461c7" stop-opacity=".22"/>
+            <stop offset="100%" stop-color="#091f51" stop-opacity="0"/>
+          </radialGradient>
+          <linearGradient id="hoodGrad" x1="0" x2="0" y1="0" y2="1">
+            <stop offset="0%" stop-color="#0d0f17"/>
+            <stop offset="100%" stop-color="#020305"/>
+          </linearGradient>
+          <radialGradient id="rim" cx="50%" cy="0%" r="80%">
+            <stop offset="0%" stop-color="#6aa0f9" stop-opacity=".55"/>
+            <stop offset="100%" stop-color="#6aa0f9" stop-opacity="0"/>
+          </radialGradient>
+          <filter id="strong" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="22"/>
+          </filter>
+        </defs>
+
+        <!-- backdrop -->
+        <rect width="600" height="600" fill="url(#ambient)"/>
+
+        <!-- neural net -->
+        <g stroke="#6aa0f9" stroke-width=".7" opacity=".25" fill="none">
+          <path d="M30 80 L150 60 L260 110 L380 70 L560 110"/>
+          <path d="M20 200 L120 230 L260 170 L400 220 L540 180"/>
+          <path d="M40 510 L180 480 L320 530 L470 490"/>
+          <path d="M30 80 L120 230"/>
+          <path d="M260 110 L260 170"/>
+          <path d="M380 70 L400 220"/>
+        </g>
+        <g fill="#6aa0f9" opacity=".7">
+          <circle cx="30" cy="80" r="2"/><circle cx="150" cy="60" r="1.6"/>
+          <circle cx="260" cy="110" r="2"/><circle cx="380" cy="70" r="2"/>
+          <circle cx="560" cy="110" r="2"/><circle cx="120" cy="230" r="1.6"/>
+          <circle cx="260" cy="170" r="2"/><circle cx="400" cy="220" r="2"/>
+          <circle cx="540" cy="180" r="1.6"/>
+          <circle cx="180" cy="480" r="1.6"/><circle cx="320" cy="530" r="2"/>
+          <circle cx="470" cy="490" r="1.6"/>
+        </g>
+
+        <!-- floating particles -->
+        <g fill="#6aa0f9">
+          <circle cx="80" cy="200" r="1.8" opacity=".7"><animate attributeName="opacity" values=".2;1;.2" dur="3s" repeatCount="indefinite"/></circle>
+          <circle cx="500" cy="240" r="1.4" opacity=".5"><animate attributeName="opacity" values=".1;.8;.1" dur="4s" repeatCount="indefinite"/></circle>
+          <circle cx="120" cy="380" r="1.6" opacity=".7"><animate attributeName="opacity" values=".3;1;.3" dur="2.6s" repeatCount="indefinite"/></circle>
+          <circle cx="540" cy="380" r="1.4" opacity=".6"><animate attributeName="opacity" values=".2;.9;.2" dur="3.4s" repeatCount="indefinite"/></circle>
+        </g>
+
+        <!-- big screen halo behind everything -->
+        <ellipse cx="300" cy="380" rx="260" ry="150" fill="url(#screenGlow)" opacity=".55" filter="url(#strong)"/>
+
+        <!-- desk -->
+        <ellipse cx="300" cy="555" rx="250" ry="14" fill="#000" opacity=".85"/>
+
+        <!-- LAPTOP (clear, larger, in front) -->
+        <!-- base -->
+        <path d="M150 510 L450 510 L478 538 L122 538 Z" fill="#0d0f17" stroke="#1a1b24" stroke-width="1.2"/>
+        <rect x="248" y="510" width="104" height="3" rx="1" fill="#03050a"/>
+        <!-- lid -->
+        <path d="M170 380 L430 380 L448 504 L152 504 Z" fill="#0a0b12" stroke="#1a1b24" stroke-width="1.2"/>
+        <!-- screen bezel -->
+        <rect x="180" y="388" width="240" height="108" rx="3" fill="#03050a"/>
+        <!-- screen body -->
+        <rect x="186" y="392" width="228" height="100" rx="2" fill="#091f51"/>
+        <rect x="186" y="392" width="228" height="100" rx="2" fill="url(#screenLcd)" opacity=".55"/>
+
+        <!-- code on screen -->
+        <g font-family="JetBrains Mono, monospace" font-size="6.4" fill="#e8f0ff">
+          <text x="194" y="404">$ ./build_future.sh</text>
+          <text x="194" y="415" fill="#9cc1ff" opacity=".9">&gt; init &lt;chongster/htf&gt;</text>
+          <text x="194" y="426" fill="#9cc1ff" opacity=".75">&gt; loading ████████████ 98%</text>
+          <text x="194" y="439" fill="#fff">function ship() {</text>
+          <text x="200" y="450" fill="#cfe1ff">  return idea</text>
+          <text x="200" y="460" fill="#cfe1ff">    .execute()</text>
+          <text x="200" y="470" fill="#cfe1ff">    .then(t =&gt; t.win())</text>
+          <text x="194" y="481" fill="#fff">}</text>
+          <text x="194" y="492" fill="#9cc1ff">&gt; ship()<tspan id="cursor" fill="#fff">█</tspan></text>
+        </g>
+
+        <!-- light spill upward toward face -->
+        <path d="M186 388 L414 388 L470 290 L130 290 Z" fill="#6aa0f9" opacity=".10"/>
+        <path d="M210 388 L390 388 L420 320 L180 320 Z" fill="#6aa0f9" opacity=".14"/>
+        <path d="M230 388 L370 388 L380 350 L220 350 Z" fill="#cfe1ff" opacity=".10"/>
+
+        <!-- HOODED FIGURE — clearer silhouette, larger, pulled forward -->
+        <!-- shoulders / cloak -->
+        <path d="M70 600 L70 540 C 90 460, 170 432, 300 432 C 430 432, 510 460, 530 540 L 530 600 Z" fill="url(#hoodGrad)" stroke="#1a1b24" stroke-width="1.2"/>
+        <!-- arms -->
+        <path d="M150 510 C 180 478, 230 470, 270 484 L 258 502 C 230 492, 200 502, 184 516 Z" fill="#06070c" stroke="#1a1b24"/>
+        <path d="M450 510 C 420 478, 370 470, 330 484 L 342 502 C 370 492, 400 502, 416 516 Z" fill="#06070c" stroke="#1a1b24"/>
+
+        <!-- HOOD: bigger, more pronounced peak -->
+        <path d="M150 360
+                 C 140 250, 210 190, 300 190
+                 C 390 190, 460 250, 450 360
+                 C 442 358, 432 354, 422 352
+                 C 410 322, 380 304, 358 298
+                 C 340 270, 320 258, 300 258
+                 C 280 258, 260 270, 242 298
+                 C 220 304, 190 322, 178 352
+                 C 168 354, 158 358, 150 360 Z"
+              fill="url(#hoodGrad)" stroke="#1a1b24" stroke-width="1.4"/>
+
+        <!-- face void — deep shadow inside hood -->
+        <path d="M210 318
+                 C 210 286, 248 268, 300 268
+                 C 352 268, 390 286, 390 318
+                 C 390 372, 360 396, 300 396
+                 C 240 396, 210 372, 210 318 Z"
+              fill="#010103"/>
+
+        <!-- jaw highlight from screen — very subtle -->
+        <path d="M236 372
+                 C 250 388, 278 394, 300 394
+                 C 322 394, 350 388, 364 372
+                 C 360 386, 332 400, 300 400
+                 C 268 400, 240 386, 236 372 Z"
+              fill="#1f3f7a" opacity=".55"/>
+        <!-- glow on cheekbones -->
+        <ellipse cx="266" cy="368" rx="14" ry="6" fill="#3a6bc4" opacity=".35"/>
+        <ellipse cx="334" cy="368" rx="14" ry="6" fill="#3a6bc4" opacity=".35"/>
+
+        <!-- two glowing eyes (just hints) -->
+        <ellipse cx="276" cy="338" rx="9" ry="3.2" fill="#6aa0f9" opacity=".75"/>
+        <ellipse cx="324" cy="338" rx="9" ry="3.2" fill="#6aa0f9" opacity=".75"/>
+        <ellipse cx="276" cy="338" rx="3.2" ry="1.4" fill="#cfe1ff"/>
+        <ellipse cx="324" cy="338" rx="3.2" ry="1.4" fill="#cfe1ff"/>
+
+        <!-- hood top rim glow -->
+        <path d="M150 360 C 140 250, 210 190, 300 190 C 390 190, 460 250, 450 360"
+              fill="none" stroke="url(#rim)" stroke-width="3" opacity=".9"/>
+        <!-- inner hood edge — sharp line -->
+        <path d="M178 352 C 200 320, 250 304, 300 304 C 350 304, 400 320, 422 352"
+              fill="none" stroke="#1f3f7a" stroke-width="1.2" opacity=".7"/>
+
+        <!-- chest emblem (Chongster mark) -->
+        <g transform="translate(282 480)">
+          <rect width="36" height="36" rx="7" fill="#000" stroke="#1f3f7a" stroke-width="1"/>
+          <image href="assets/chongster-logo.png" x="3" y="3" width="30" height="30" preserveAspectRatio="xMidYMid slice"/>
+        </g>
+      </svg>
+    </div>
+  </div>
+</header>
+
+<div class="divider"></div>
+
+<!-- RULES -->
+<section id="rules" data-screen-label="Rules">
+  <div class="container">
+    <div class="sec-head">
+      <div class="sec-label" data-i18n="rules.label">// 01 / The Rules</div>
+      <h2 class="sec-title" data-i18n="rules.title">Six Rules. No Exceptions.</h2>
+      <p class="sec-intro" data-i18n="rules.intro">Read these once. They keep things fair, fast, and fun. Anything not on this list is fair game — surprise us.</p>
+    </div>
+    <div class="rules-grid">
+      <div class="rule-card"><div class="rule-num">01</div><div class="rule-title" data-i18n="r1.t">// Solo or Team</div><div class="rule-body" data-i18n="r1.b">Hack alone or rally any size of team — two of you, ten of you, whatever works. No upper limit, no minimum.</div></div>
+      <div class="rule-card"><div class="rule-num">02</div><div class="rule-title" data-i18n="r2.t">// Build Window</div><div class="rule-body" data-i18n="r2.b">Build over the weekend on your own schedule. Pre-baked code is not allowed; ideas, sketches, and notes are fine to bring in.</div></div>
+      <div class="rule-card"><div class="rule-num">03</div><div class="rule-title" data-i18n="r3.t">// Original Work Only</div><div class="rule-body" data-i18n="r3.b">Open-source libraries, public APIs, and AI assistance are all encouraged. Cite what you used. Don't ship someone else's product as your own.</div></div>
+      <div class="rule-card"><div class="rule-num">04</div><div class="rule-title" data-i18n="r4.t">// No Vibe Coding</div><div class="rule-body" data-i18n="r4.b">Use AI as a tool, not a driver. You should be able to explain every line of your project — what it does, why it's there, and how you'd change it.</div></div>
+      <div class="rule-card"><div class="rule-num">05</div><div class="rule-title" data-i18n="r5.t">// Ship A Demo</div><div class="rule-body" data-i18n="r5.b">A working prototype beats a deck. Live demo on Sunday in front of the judging panel — see Format for the rules of the demo room.</div></div>
+      <div class="rule-card"><div class="rule-num">06</div><div class="rule-title" data-i18n="r6.t">// Be Decent, Have Fun</div><div class="rule-body" data-i18n="r6.b">Code of Conduct applies the entire weekend. Be kind to your teammates and the rest of the floor. Sleep is allowed. Snacks provided.</div></div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- CHALLENGES -->
+<section id="challenges" class="challenges" data-screen-label="Challenges">
+  <div class="container">
+    <div class="sec-head">
+      <div class="sec-label" data-i18n="ch.label">// 02 / Problem Tracks</div>
+      <h2 class="sec-title" data-i18n="ch.title">Three Problems. One Weekend.</h2>
+      <p class="sec-intro" data-i18n="ch.intro">Pick a track or invent your own. Detailed briefs land in Slack ahead of kickoff — start ideating now.</p>
+    </div>
+    <div class="ch-grid">
+      <div class="ch-card"><div class="ch-badge">// Problem 01</div><div class="ch-title" data-i18n="ch.cs">Coming<br/>Soon</div><div class="ch-tbd" data-i18n="ch.brief">// Brief drops in #htf</div></div>
+      <div class="ch-card"><div class="ch-badge">// Problem 02</div><div class="ch-title" data-i18n="ch.cs2">Coming<br/>Soon</div><div class="ch-tbd" data-i18n="ch.brief2">// Brief drops in #htf</div></div>
+      <div class="ch-card"><div class="ch-badge">// Problem 03</div><div class="ch-title" data-i18n="ch.cs3">Coming<br/>Soon</div><div class="ch-tbd" data-i18n="ch.brief3">// Brief drops in #htf</div></div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- FORMAT (replaces schedule) -->
+<section id="format" data-screen-label="Format">
+  <div class="container">
+    <div class="sec-head">
+      <div class="sec-label" data-i18n="fmt.label">// 03 / How It Runs</div>
+      <h2 class="sec-title" data-i18n="fmt.title">Loose by Day. Strict at Demos.</h2>
+      <p class="sec-intro" data-i18n="fmt.intro">Build whenever and however suits your team. The weekend is yours — there's only one moment that's locked in.</p>
+    </div>
+
+    <div class="format-grid">
+      <div class="format-list">
+        <div class="fmt-row">
+          <div class="k" data-i18n="fmt.r1.k">// Build Time</div>
+          <div>
+            <div class="v-title" data-i18n="fmt.r1.t">Your Schedule</div>
+            <div class="v-desc" data-i18n="fmt.r1.d">Hack from your sofa, the office, a cabin in the woods — wherever you do your best work. No mandatory check-ins, no enforced sprint blocks. Sleep when you need to.</div>
+          </div>
+        </div>
+        <div class="fmt-row">
+          <div class="k" data-i18n="fmt.r2.k">// Mentors</div>
+          <div>
+            <div class="v-title" data-i18n="fmt.r2.t">Ask in Slack</div>
+            <div class="v-desc" data-i18n="fmt.r2.d">Senior engineers, designers and product folk are on call all weekend in #htf-help. Drop a question, a screenshot or a half-formed idea — someone will jump in.</div>
+          </div>
+        </div>
+        <div class="fmt-row">
+          <div class="k" data-i18n="fmt.r3.k">// Submitting</div>
+          <div>
+            <div class="v-title" data-i18n="fmt.r3.t">Repo + One Slide <span class="badge" data-i18n="fmt.r3.badge">By demo time</span></div>
+            <div class="v-desc" data-i18n="fmt.r3.d">Drop your repo link and a single title slide in the submissions form pinned to #htf. Anything submitted after demos start won't be judged.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="demo-card">
+        <div class="lbl" data-i18n="fmt.demo.lbl">// The One Locked-In Moment</div>
+        <div class="big"><span data-i18n="fmt.demo.big1">Demos</span><br/><span class="blue" data-i18n="fmt.demo.big2">Sunday 3pm UTC</span></div>
+        <div class="meta">
+          <div><div class="k" data-i18n="fmt.demo.m1k">// Time per team</div><div class="v" data-i18n="fmt.demo.m1v">20 min max</div></div>
+          <div><div class="k" data-i18n="fmt.demo.m2k">// Language</div><div class="v" data-i18n="fmt.demo.m2v">English only</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- PRIZES -->
+<section id="prizes" class="prizes" data-screen-label="Prizes">
+  <div class="center-blob"></div>
+  <div class="container">
+    <div class="sec-head" style="text-align:center;margin-bottom:24px">
+      <div class="sec-label" style="text-align:center" data-i18n="pz.label">// 04 / Spoils</div>
+      <h2 class="sec-title" style="margin:0 auto" data-i18n="pz.title">Everyone Wins.</h2>
+      <p class="sec-intro" style="margin:18px auto 0" data-i18n="pz.intro">Every person and team that ships a demo takes home part of the pot. The winners take home the most — but nobody walks away with nothing.</p>
+    </div>
+    <div class="prize-box">
+      <div class="ghost-pound">£</div>
+      <div class="prize-headline" data-i18n="pz.h">Total Pool TBD</div>
+      <div class="prize-amount" data-i18n="pz.a">// Disclosed at kickoff</div>
+
+      <div class="share-grid">
+        <div class="share gold"><div class="place" data-i18n="pz.s1.p">// 01 · Champion</div><div class="pct" data-i18n="pz.s1.v">Largest Share</div><div class="who" data-i18n="pz.s1.w">Winning person or team takes home the biggest cut.</div></div>
+        <div class="share"><div class="place" data-i18n="pz.s2.p">// 02 · Runners-Up</div><div class="pct" data-i18n="pz.s2.v">Second Cut</div><div class="who" data-i18n="pz.s2.w">Top three projects after the champion split the next tier.</div></div>
+        <div class="share"><div class="place" data-i18n="pz.s3.p">// 03 · Finalists</div><div class="pct" data-i18n="pz.s3.v">Third Cut</div><div class="who" data-i18n="pz.s3.w">Anyone who made the shortlist gets a meaningful share.</div></div>
+        <div class="share"><div class="place" data-i18n="pz.s4.p">// 04 · Everyone Else</div><div class="pct" data-i18n="pz.s4.v">Demo Cut</div><div class="who" data-i18n="pz.s4.w">Ship a demo, get a share. Showing up and finishing counts.</div></div>
+      </div>
+
+      <div class="prize-foot" data-i18n="pz.foot">// Final split announced after judging</div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- JOIN (replaces registration form) -->
+<section id="join" class="join" data-screen-label="Join">
+  <div class="container">
+    <div class="join-card">
+      <div class="join-icon" aria-hidden="true">
+        <!-- slack hash mark -->
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round">
+          <line x1="9" y1="3" x2="7" y2="21"/>
+          <line x1="17" y1="3" x2="15" y2="21"/>
+          <line x1="3" y1="9" x2="21" y2="7"/>
+          <line x1="3" y1="17" x2="21" y2="15"/>
+        </svg>
+      </div>
+      <div class="sec-label" style="margin-bottom:10px" data-i18n="join.label">// 05 / Sign Up</div>
+      <div class="join-h" data-i18n="join.h">No Form. Just Slack.</div>
+      <p class="join-sub" data-i18n="join.sub">Reply to the pinned thread in <b style="color:var(--text)">#htf</b> with your name, role, and (if you have one) a team. Solo? Say so — we'll match you with people looking for teammates.</p>
+      <div class="join-channel" data-i18n="join.ch"># htf · pinned thread</div>
+      <div class="join-foot" data-i18n="join.foot">// Reply by Friday before kickoff</div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="container foot-grid">
+    <div class="col">
+      <div class="foot-mark"><img src="assets/chongster-logo.png" alt="Chongster"/><span class="name">Chongster</span></div>
+      <b data-i18n="ft.c1.t">[Company name]</b>
+      <p data-i18n="ft.c1.b">[Street address]<br/>[City, postcode]<br/>[Country]</p>
+    </div>
+    <div class="col">
+      <b data-i18n="ft.c2.t">// Registered</b>
+      <p data-i18n="ft.c2.b">Company No. [number]<br/>VAT No. [number]</p>
+    </div>
+    <div class="col">
+      <b data-i18n="ft.c3.t">// Hacking the Future</b>
+      <p data-i18n="ft.c3.b">Date TBD<br/>htf@chongster.com<br/>#htf on Slack</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // ---------- Blinking cursor ----------
+  let on = true;
+  setInterval(()=>{
+    const c = document.getElementById('cursor');
+    if(c){ c.setAttribute('opacity', on ? '1' : '0'); on = !on; }
+  }, 500);
+
+  // ---------- I18N ----------
+  const I18N = {
+    en: {
+      'nav.rules':'Rules','nav.challenges':'Challenges','nav.format':'Format','nav.prizes':'Prizes','nav.cta':'Join on Slack',
+      'hero.tag':'Chongster Internal Hackathon','hero.title1':'Hacking','hero.title2':'the Future',
+      'hero.sub':"// One weekend. Any team size. Build something that shouldn't be possible yet — and ship it before the demo.",
+      'hero.date':'Date TBD · Watch Slack for the announcement',
+      'stat.team.k':'Team Size','stat.team.v':'1–∞',
+      'stat.demo.k':'Demo Day','stat.demo.v':'Sunday',
+      'stat.lang.k':'Language','stat.lang.v':'English',
+      'hero.cta1':'Reply on Slack →','hero.cta2':'Read the Rules',
+
+      'rules.label':'// 01 / The Rules','rules.title':'Six Rules. No Exceptions.',
+      'rules.intro':"Read these once. They keep things fair, fast, and fun. Anything not on this list is fair game — surprise us.",
+      'r1.t':'// Solo or Team','r1.b':'Hack alone or rally any size of team — two of you, ten of you, whatever works. No upper limit, no minimum.',
+      'r2.t':'// Build Window','r2.b':"Build over the weekend on your own schedule. Pre-baked code is not allowed; ideas, sketches, and notes are fine to bring in.",
+      'r3.t':'// Original Work Only','r3.b':"Open-source libraries, public APIs, and AI assistance are all encouraged. Cite what you used. Don't ship someone else's product as your own.",
+      'r4.t':'// No Vibe Coding','r4.b':"Use AI as a tool, not a driver. You should be able to explain every line of your project — what it does, why it's there, and how you'd change it.",
+      'r5.t':'// Ship A Demo','r5.b':'A working prototype beats a deck. Live demo on Sunday in front of the judging panel — see Format for the rules of the demo room.',
+      'r6.t':'// Be Decent, Have Fun','r6.b':'Code of Conduct applies the entire weekend. Be kind to your teammates and the rest of the floor. Sleep is allowed. Snacks provided.',
+
+      'ch.label':'// 02 / Problem Tracks','ch.title':'Three Problems. One Weekend.',
+      'ch.intro':'Pick a track or invent your own. Detailed briefs land in Slack ahead of kickoff — start ideating now.',
+      'ch.cs':'Coming<br>Soon','ch.brief':'// Brief drops in #htf',
+      'ch.cs2':'Coming<br>Soon','ch.brief2':'// Brief drops in #htf',
+      'ch.cs3':'Coming<br>Soon','ch.brief3':'// Brief drops in #htf',
+
+      'fmt.label':'// 03 / How It Runs','fmt.title':'Loose by Day. Strict at Demos.',
+      'fmt.intro':"Build whenever and however suits your team. The weekend is yours — there's only one moment that's locked in.",
+      'fmt.r1.k':'// Build Time','fmt.r1.t':'Your Schedule','fmt.r1.d':'Hack from your sofa, the office, a cabin in the woods — wherever you do your best work. No mandatory check-ins, no enforced sprint blocks. Sleep when you need to.',
+      'fmt.r2.k':'// Mentors','fmt.r2.t':'Ask in Slack','fmt.r2.d':"Senior engineers, designers and product folk are on call all weekend in #htf-help. Drop a question, a screenshot or a half-formed idea — someone will jump in.",
+      'fmt.r3.k':'// Submitting','fmt.r3.t':'Repo + One Slide ','fmt.r3.badge':'By demo time','fmt.r3.d':"Drop your repo link and a single title slide in the submissions form pinned to #htf. Anything submitted after demos start won't be judged.",
+      'fmt.demo.lbl':'// The One Locked-In Moment','fmt.demo.big1':'Demos','fmt.demo.big2':'Sunday 3pm UTC',
+      'fmt.demo.m1k':'// Time per team','fmt.demo.m1v':'20 min max',
+      'fmt.demo.m2k':'// Language','fmt.demo.m2v':'English only',
+
+      'pz.label':'// 04 / Spoils','pz.title':'Everyone Wins.',
+      'pz.intro':'Every person and team that ships a demo takes home part of the pot. The winners take home the most — but nobody walks away with nothing.',
+      'pz.h':'Total Pool TBD','pz.a':'// Disclosed at kickoff',
+      'pz.s1.p':'// 01 · Champion','pz.s1.v':'Largest Share','pz.s1.w':'Winning person or team takes home the biggest cut.',
+      'pz.s2.p':'// 02 · Runners-Up','pz.s2.v':'Second Cut','pz.s2.w':'Top three projects after the champion split the next tier.',
+      'pz.s3.p':'// 03 · Finalists','pz.s3.v':'Third Cut','pz.s3.w':'Anyone who made the shortlist gets a meaningful share.',
+      'pz.s4.p':'// 04 · Everyone Else','pz.s4.v':'Demo Cut','pz.s4.w':'Ship a demo, get a share. Showing up and finishing counts.',
+      'pz.foot':'// Final split announced after judging',
+
+      'join.label':'// 05 / Sign Up','join.h':'No Form. Just Slack.',
+      'join.sub':"Reply to the pinned thread in <b style=\"color:var(--text)\">#htf</b> with your name, role, and (if you have one) a team. Solo? Say so — we'll match you with people looking for teammates.",
+      'join.ch':'# htf · pinned thread','join.foot':'// Reply by Friday before kickoff',
+
+      'ft.c1.t':'[Company name]','ft.c1.b':'[Street address]<br>[City, postcode]<br>[Country]',
+      'ft.c2.t':'// Registered','ft.c2.b':'Company No. [number]<br>VAT No. [number]',
+      'ft.c3.t':'// Hacking the Future','ft.c3.b':'Date TBD<br>htf@chongster.com<br>#htf on Slack'
+    },
+    vi: {
+      'nav.rules':'Luật chơi','nav.challenges':'Thử thách','nav.format':'Hình thức','nav.prizes':'Giải thưởng','nav.cta':'Tham gia trên Slack',
+      'hero.tag':'Hackathon Nội Bộ Chongster','hero.title1':'Hack','hero.title2':'Tương Lai',
+      'hero.sub':'// Một cuối tuần. Đội bất kỳ kích cỡ. Tạo ra thứ tưởng chừng chưa thể — và hoàn thành trước buổi demo.',
+      'hero.date':'Ngày sẽ thông báo · Theo dõi Slack để cập nhật',
+      'stat.team.k':'Số Thành Viên','stat.team.v':'1–∞',
+      'stat.demo.k':'Ngày Demo','stat.demo.v':'Chủ Nhật',
+      'stat.lang.k':'Ngôn Ngữ','stat.lang.v':'Tiếng Anh',
+      'hero.cta1':'Trả lời trên Slack →','hero.cta2':'Đọc Luật',
+
+      'rules.label':'// 01 / Luật Chơi','rules.title':'Sáu Luật. Không Ngoại Lệ.',
+      'rules.intro':'Đọc một lần là đủ. Sáu luật này giữ cho cuộc chơi công bằng, nhanh và vui. Mọi thứ không có trong danh sách đều được phép — hãy làm chúng tôi bất ngờ.',
+      'r1.t':'// Một Mình Hoặc Đội','r1.b':'Hack một mình hoặc lập đội bất kỳ kích cỡ — hai người, mười người, sao cũng được. Không giới hạn trên, không tối thiểu.',
+      'r2.t':'// Khung Thời Gian','r2.b':'Code suốt cuối tuần theo lịch của bạn. Không được mang code làm sẵn vào; ý tưởng, phác thảo, ghi chú thì không sao.',
+      'r3.t':'// Chỉ Bài Gốc','r3.b':'Khuyến khích dùng thư viện mã nguồn mở, API công cộng và công cụ AI. Hãy ghi rõ nguồn. Đừng mang sản phẩm của người khác đi nộp.',
+      'r4.t':'// Không Vibe Coding','r4.b':'Dùng AI như công cụ, không phải người lái. Bạn phải giải thích được từng dòng code — nó làm gì, vì sao có ở đó, và bạn sẽ thay đổi nó thế nào.',
+      'r5.t':'// Phải Demo','r5.b':'Bản chạy được hơn slide trình bày. Demo trực tiếp Chủ Nhật trước hội đồng giám khảo — xem mục Hình thức để biết luật phòng demo.',
+      'r6.t':'// Tử Tế, Vui Vẻ','r6.b':'Bộ Quy Tắc Ứng Xử áp dụng cả cuối tuần. Hãy tử tế với đồng đội và mọi người. Ngủ là được phép. Đồ ăn vặt có sẵn.',
+
+      'ch.label':'// 02 / Mảng Đề Bài','ch.title':'Ba Đề Bài. Một Cuối Tuần.',
+      'ch.intro':'Chọn một mảng hoặc tự nghĩ ra. Đề chi tiết sẽ xuất hiện trên Slack trước giờ khởi động — hãy bắt đầu nghĩ ngay từ bây giờ.',
+      'ch.cs':'Sắp<br>Ra Mắt','ch.brief':'// Đề bài sẽ có tại #htf',
+      'ch.cs2':'Sắp<br>Ra Mắt','ch.brief2':'// Đề bài sẽ có tại #htf',
+      'ch.cs3':'Sắp<br>Ra Mắt','ch.brief3':'// Đề bài sẽ có tại #htf',
+
+      'fmt.label':'// 03 / Cách Vận Hành','fmt.title':'Thoải Mái Cả Ngày. Nghiêm Túc Khi Demo.',
+      'fmt.intro':'Code khi nào và ở đâu tuỳ đội bạn. Cuối tuần là của bạn — chỉ có duy nhất một mốc cố định.',
+      'fmt.r1.k':'// Thời Gian Code','fmt.r1.t':'Lịch Của Bạn','fmt.r1.d':'Hack từ ghế sofa, văn phòng, hoặc một cabin trong rừng — bất cứ nơi nào bạn làm việc tốt nhất. Không phải điểm danh, không bị ép theo khung giờ. Cứ ngủ khi cần.',
+      'fmt.r2.k':'// Mentor','fmt.r2.t':'Hỏi Trên Slack','fmt.r2.d':'Đội ngũ kỹ sư, thiết kế, sản phẩm cấp cao trực cả cuối tuần ở #htf-help. Hỏi gì cũng được — câu hỏi, ảnh chụp, hay ý tưởng còn dang dở.',
+      'fmt.r3.k':'// Nộp Bài','fmt.r3.t':'Repo + Một Slide ','fmt.r3.badge':'Trước giờ demo','fmt.r3.d':'Gửi link repo và một slide tiêu đề vào form được ghim ở #htf. Bài nộp sau khi demo bắt đầu sẽ không được chấm.',
+      'fmt.demo.lbl':'// Mốc Duy Nhất Cố Định','fmt.demo.big1':'Demo','fmt.demo.big2':'Chủ Nhật 15:00 UTC',
+      'fmt.demo.m1k':'// Thời gian / đội','fmt.demo.m1v':'Tối đa 20 phút',
+      'fmt.demo.m2k':'// Ngôn ngữ','fmt.demo.m2v':'Chỉ Tiếng Anh',
+
+      'pz.label':'// 04 / Phần Thưởng','pz.title':'Ai Cũng Thắng.',
+      'pz.intro':'Mọi người và mọi đội demo thành công đều nhận được một phần. Người chiến thắng nhận nhiều nhất — nhưng không ai ra về tay trắng.',
+      'pz.h':'Tổng Quỹ TBD','pz.a':'// Công bố lúc khởi động',
+      'pz.s1.p':'// 01 · Quán Quân','pz.s1.v':'Phần Lớn Nhất','pz.s1.w':'Cá nhân hoặc đội thắng cuộc nhận phần lớn nhất.',
+      'pz.s2.p':'// 02 · Á Quân','pz.s2.v':'Phần Nhì','pz.s2.w':'Ba dự án xuất sắc tiếp theo chia phần thứ hai.',
+      'pz.s3.p':'// 03 · Vào Chung Khảo','pz.s3.v':'Phần Ba','pz.s3.w':'Bất kỳ ai vào danh sách rút gọn đều có một phần đáng kể.',
+      'pz.s4.p':'// 04 · Mọi Người Khác','pz.s4.v':'Phần Demo','pz.s4.w':'Demo xong là có phần. Có mặt và hoàn thành đều được tính.',
+      'pz.foot':'// Tỷ lệ chính thức công bố sau chấm điểm',
+
+      'join.label':'// 05 / Đăng Ký','join.h':'Không Có Form. Chỉ Cần Slack.',
+      'join.sub':'Trả lời thread được ghim ở <b style="color:var(--text)">#htf</b> với tên, vai trò, và (nếu có) đội của bạn. Đi một mình? Cứ nói — chúng tôi sẽ ghép bạn với người đang tìm đồng đội.',
+      'join.ch':'# htf · thread đã ghim','join.foot':'// Trả lời trước thứ Sáu trước giờ khởi động',
+
+      'ft.c1.t':'[Tên công ty]','ft.c1.b':'[Địa chỉ]<br>[Thành phố, mã bưu]<br>[Quốc gia]',
+      'ft.c2.t':'// Đã Đăng Ký','ft.c2.b':'Mã số DN [số]<br>Mã số thuế [số]',
+      'ft.c3.t':'// Hacking the Future','ft.c3.b':'Ngày sẽ thông báo<br>htf@chongster.com<br>#htf trên Slack'
+    }
+  };
+
+  function applyLang(lang){
+    const dict = I18N[lang] || I18N.en;
+    document.querySelectorAll('[data-i18n]').forEach(el=>{
+      const k = el.getAttribute('data-i18n');
+      if(dict[k] != null) el.innerHTML = dict[k];
+    });
+    document.documentElement.setAttribute('lang', lang);
+    document.querySelectorAll('.lang button').forEach(b=>{
+      b.classList.toggle('on', b.getAttribute('data-lang')===lang);
+    });
+    try{ localStorage.setItem('htf_lang', lang); }catch(e){}
+  }
+
+  document.querySelectorAll('.lang button').forEach(b=>{
+    b.addEventListener('click', ()=>applyLang(b.getAttribute('data-lang')));
+  });
+
+  // boot with saved or default
+  let saved = 'en';
+  try{ saved = localStorage.getItem('htf_lang') || 'en'; }catch(e){}
+  applyLang(saved);
+
+  // ---------- Scroll reveal + Hover/Animation extras ----------
+  const REVEAL = `
+    /* ----- entrance reveals ----- */
+    [data-reveal]{opacity:0;transform:translateY(28px);transition:opacity .8s cubic-bezier(.2,.7,.2,1),transform .9s cubic-bezier(.2,.7,.2,1);will-change:opacity,transform}
+    [data-reveal].rv-in{opacity:1;transform:translateY(0)}
+    [data-reveal="fade"]{transform:none}
+    [data-reveal="left"]{transform:translateX(-32px)}
+    [data-reveal="left"].rv-in{transform:translateX(0)}
+    [data-reveal="right"]{transform:translateX(32px)}
+    [data-reveal="right"].rv-in{transform:translateX(0)}
+    [data-reveal="scale"]{transform:translateY(20px) scale(.97)}
+    [data-reveal="scale"].rv-in{transform:translateY(0) scale(1)}
+    [data-stagger] > *{opacity:0;transform:translateY(24px);transition:opacity .7s cubic-bezier(.2,.7,.2,1),transform .8s cubic-bezier(.2,.7,.2,1)}
+    [data-stagger].rv-in > *{opacity:1;transform:translateY(0)}
+    [data-stagger].rv-in > *:nth-child(1){transition-delay:0ms}
+    [data-stagger].rv-in > *:nth-child(2){transition-delay:80ms}
+    [data-stagger].rv-in > *:nth-child(3){transition-delay:160ms}
+    [data-stagger].rv-in > *:nth-child(4){transition-delay:240ms}
+    [data-stagger].rv-in > *:nth-child(5){transition-delay:320ms}
+    [data-stagger].rv-in > *:nth-child(6){transition-delay:400ms}
+
+    /* ----- universal smoother for interactive surfaces ----- */
+    .btn,.rule-card,.ch-card,.share,.fmt-row,.stat,.cd,.pill,.date-pill,.lang button,.nav-links a,.logo img.brand,.join-channel,.prize-box,.join-card,.demo-card,.foot-grid .col,.join-icon{
+      transition: transform .35s cubic-bezier(.2,.7,.2,1), box-shadow .35s ease, border-color .25s ease, background-color .25s ease, color .2s ease, opacity .25s ease;
+    }
+
+    /* ----- buttons ----- */
+    .btn{position:relative;overflow:hidden}
+    .btn::after{content:"";position:absolute;inset:0;background:linear-gradient(120deg,transparent 30%,rgba(255,255,255,.18) 50%,transparent 70%);transform:translateX(-120%);transition:transform .8s ease}
+    .btn:hover::after{transform:translateX(120%)}
+    .btn-primary:hover{transform:translateY(-2px) scale(1.02);box-shadow:0 10px 36px rgba(var(--mid-rgb),.55),0 0 0 1px rgba(var(--blue-rgb),.4)}
+    .btn-primary:active{transform:translateY(0) scale(.99)}
+    .btn-ghost:hover{transform:translateY(-2px);border-color:var(--blue);background:rgba(var(--blue-rgb),.08);box-shadow:0 8px 28px rgba(var(--blue-rgb),.18)}
+    .btn-ghost:active{transform:translateY(0)}
+
+    /* ----- nav ----- */
+    .nav-links a{position:relative}
+    .nav-links a::after{content:"";position:absolute;left:0;right:0;bottom:-6px;height:1px;background:var(--blue);transform:scaleX(0);transform-origin:left center;transition:transform .35s cubic-bezier(.2,.7,.2,1)}
+    .nav-links a:hover::after{transform:scaleX(1)}
+    .logo img.brand{transition:transform .5s cubic-bezier(.2,.7,.2,1),box-shadow .35s ease}
+    .logo:hover img.brand{transform:rotate(-6deg) scale(1.06);box-shadow:0 0 0 1px var(--blue),0 0 24px rgba(var(--blue-rgb),.45)}
+    .lang button{transition:color .2s,background .2s,transform .2s}
+    .lang button:hover{transform:translateY(-1px)}
+
+    /* ----- pill / date pill / channel ----- */
+    .pill,.date-pill,.join-channel{will-change:transform}
+    .pill:hover,.date-pill:hover,.join-channel:hover{transform:translateY(-2px);border-color:rgba(var(--blue-rgb),.45);box-shadow:0 8px 24px rgba(var(--blue-rgb),.18)}
+
+    /* ----- rule cards: lift + tilt + animated number + accent bar ----- */
+    .rule-card{position:relative}
+    .rule-card::after{content:"";position:absolute;left:0;top:0;bottom:0;width:2px;background:linear-gradient(180deg,var(--blue),var(--mid));transform:scaleY(0);transform-origin:top center;transition:transform .5s cubic-bezier(.2,.7,.2,1)}
+    .rule-card:hover::after{transform:scaleY(1)}
+    .rule-card .rule-num{transition:color .35s ease,transform .5s cubic-bezier(.2,.7,.2,1),text-shadow .4s ease;display:inline-block}
+    .rule-card:hover{transform:translateY(-6px) scale(1.012);border-color:rgba(var(--blue-rgb),.5);box-shadow:0 18px 50px rgba(0,0,0,.45),0 0 0 1px rgba(var(--blue-rgb),.18)}
+    .rule-card:hover .rule-num{color:rgba(var(--blue-rgb),.55);transform:translateY(-2px) scale(1.04);text-shadow:0 0 30px rgba(var(--blue-rgb),.45)}
+    .rule-card:hover .rule-title{color:#fff}
+
+    /* ----- challenge cards: hover gradient sweep + glow + arrow ----- */
+    .ch-card{position:relative}
+    .ch-card::after{transition:transform .8s cubic-bezier(.2,.7,.2,1),opacity .4s ease;will-change:transform}
+    .ch-card:hover{transform:translateY(-8px);border-color:rgba(var(--blue-rgb),.5);box-shadow:0 22px 60px rgba(0,0,0,.55),0 0 0 1px rgba(var(--blue-rgb),.25)}
+    .ch-card:hover::after{transform:translate(-30px,-30px) scale(1.25);opacity:.85}
+    .ch-card .ch-title{transition:transform .5s cubic-bezier(.2,.7,.2,1),color .3s}
+    .ch-card:hover .ch-title{transform:translateX(6px)}
+    .ch-card::before{transition:opacity .4s,transform .6s ease;transform-origin:left center}
+    .ch-card:hover::before{transform:scaleX(1.05)}
+
+    /* ----- format rows ----- */
+    .fmt-row{position:relative;padding-left:0;transition:padding-left .35s ease,background .25s ease}
+    .fmt-row::before{content:"";position:absolute;left:0;top:24px;bottom:24px;width:2px;background:var(--blue);transform:scaleY(0);transform-origin:top center;transition:transform .4s cubic-bezier(.2,.7,.2,1);border-radius:2px}
+    .fmt-row:hover::before{transform:scaleY(1)}
+    .fmt-row:hover{padding-left:14px;background:linear-gradient(90deg,rgba(var(--blue-rgb),.04),transparent 60%)}
+    .fmt-row:hover .v-title{color:var(--blue)}
+    .fmt-row .v-title{transition:color .3s ease,transform .35s ease}
+
+    /* ----- stat cards ----- */
+    .stat:hover{transform:translateY(-3px);border-color:rgba(var(--blue-rgb),.35);box-shadow:0 10px 28px rgba(var(--blue-rgb),.15)}
+    .stat .v{transition:transform .5s cubic-bezier(.2,.7,.2,1)}
+    .stat:hover .v{transform:scale(1.05)}
+
+    /* ----- prize shares ----- */
+    .share{transition:transform .35s cubic-bezier(.2,.7,.2,1),border-color .3s,box-shadow .3s,background .3s}
+    .share:hover{transform:translateY(-4px) scale(1.015);border-color:rgba(var(--blue-rgb),.35);background:rgba(var(--blue-rgb),.05);box-shadow:0 14px 34px rgba(0,0,0,.45)}
+    .share.gold:hover{border-color:rgba(245,200,66,.55);background:rgba(245,200,66,.06);box-shadow:0 14px 38px rgba(245,200,66,.18)}
+    .share .pct{transition:transform .4s cubic-bezier(.2,.7,.2,1)}
+    .share:hover .pct{transform:translateX(2px) scale(1.02)}
+
+    /* ----- prize / join boxes ----- */
+    .prize-box{transition:transform .5s cubic-bezier(.2,.7,.2,1),box-shadow .5s}
+    .prize-box:hover{transform:translateY(-4px);box-shadow:0 30px 80px rgba(0,0,0,.55),0 0 0 1px rgba(245,200,66,.15)}
+    .prize-headline{transition:transform .6s cubic-bezier(.2,.7,.2,1)}
+    .prize-box:hover .prize-headline{transform:scale(1.03)}
+    .join-card{transition:transform .5s cubic-bezier(.2,.7,.2,1),box-shadow .5s,border-color .3s}
+    .join-card:hover{transform:translateY(-4px);border-color:rgba(var(--blue-rgb),.35);box-shadow:0 26px 70px rgba(0,0,0,.55),0 0 0 1px rgba(var(--blue-rgb),.18)}
+    .join-icon{transition:transform .5s cubic-bezier(.2,.7,.2,1),box-shadow .4s}
+    .join-card:hover .join-icon{transform:rotate(8deg) scale(1.08);box-shadow:0 14px 40px rgba(var(--mid-rgb),.6)}
+
+    /* ----- footer columns ----- */
+    .foot-grid .col{transition:transform .35s ease,color .25s}
+    .foot-grid .col:hover{transform:translateY(-2px)}
+    .foot-grid .col:hover b{color:var(--blue)}
+    .foot-grid .col b{transition:color .25s}
+
+    /* ----- subtle floats ----- */
+    @keyframes htf-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+    @keyframes htf-floatX{0%,100%{transform:translateX(0)}50%{transform:translateX(6px)}}
+    @keyframes htf-glow{0%,100%{filter:drop-shadow(0 0 24px rgba(var(--blue-rgb),.18))}50%{filter:drop-shadow(0 0 60px rgba(var(--blue-rgb),.35))}}
+    @keyframes htf-spinSlow{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+    @keyframes htf-shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+    .hero-art{animation:htf-float 7s ease-in-out infinite,htf-glow 6s ease-in-out infinite}
+    .hero-art:hover{animation-play-state:paused}
+    .hero-art svg{transition:transform .7s cubic-bezier(.2,.7,.2,1)}
+    .hero-art:hover svg{transform:scale(1.025)}
+    .pulse{will-change:transform}
+    .blob.tr{animation:htf-floatX 14s ease-in-out infinite}
+    .blob.bl{animation:htf-float 18s ease-in-out infinite reverse}
+
+    /* ----- shimmer text on hero gradient on hover of title ----- */
+    h1.hero-title .blue{background-size:200% 100%;transition:background-position .8s ease}
+    h1.hero-title:hover .blue{animation:htf-shimmer 2.5s linear infinite}
+
+    /* ----- prize amount shimmer ----- */
+    .prize-headline{background-size:200% 100%}
+    .prize-box:hover .prize-headline{animation:htf-shimmer 3s linear infinite}
+
+    /* ----- divider sheen on scroll-into-view ----- */
+    .divider{position:relative;overflow:hidden}
+    .divider::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(var(--blue-rgb),.6),transparent);transform:translateX(-100%);transition:transform 1.4s ease}
+    .divider.rv-in::after{transform:translateX(100%)}
+
+    /* ----- nav scroll state ----- */
+    nav.scrolled{background:rgba(6,6,8,.85);box-shadow:0 8px 32px rgba(0,0,0,.5)}
+
+    @media (prefers-reduced-motion: reduce){
+      [data-reveal],[data-stagger] > *{opacity:1!important;transform:none!important;transition:none!important}
+      .hero-art,.blob.tr,.blob.bl,h1.hero-title:hover .blue,.prize-box:hover .prize-headline{animation:none!important}
+    }
+  `;
+  const __rs = document.createElement('style'); __rs.textContent = REVEAL; document.head.appendChild(__rs);
+
+  // Auto-tag elements that should reveal
+  const tag = (sel, kind='') => document.querySelectorAll(sel).forEach(el=>{
+    if(!el.hasAttribute('data-reveal')) el.setAttribute('data-reveal', kind || '');
+  });
+  const tagStagger = (sel) => document.querySelectorAll(sel).forEach(el=>{
+    if(!el.hasAttribute('data-stagger')) el.setAttribute('data-stagger','');
+  });
+
+  tag('.sec-head','');
+  tag('.hero-art','right');
+  tagStagger('.rules-grid');
+  tagStagger('.ch-grid');
+  tag('.format-list','left');
+  tag('.demo-card','right');
+  tag('.prize-box','scale');
+  tag('.join-card','scale');
+  tag('.fmt-row','');
+  tag('.foot-grid','fade');
+  tag('.divider','fade');
+  tagStagger('.share-grid');
+  tagStagger('.stats');
+
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{
+      if(e.isIntersecting){
+        e.target.classList.add('rv-in');
+        io.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+  document.querySelectorAll('[data-reveal],[data-stagger]').forEach(el=>io.observe(el));
+
+  // Nav state on scroll
+  const navEl = document.querySelector('nav');
+  if(navEl){
+    const onScroll = () => navEl.classList.toggle('scrolled', window.scrollY > 32);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive:true });
+  }
+
+  // Mouse-parallax tilt on hero illustration
+  const art = document.querySelector('.hero-art svg');
+  if(art && !window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+    const wrap = document.querySelector('.hero-art');
+    wrap.addEventListener('mousemove', (e)=>{
+      const r = wrap.getBoundingClientRect();
+      const x = (e.clientX - r.left)/r.width - .5;
+      const y = (e.clientY - r.top)/r.height - .5;
+      art.style.transform = `scale(1.02) rotateY(${x*8}deg) rotateX(${ -y*8 }deg)`;
+      art.style.transformStyle = 'preserve-3d';
+    });
+    wrap.addEventListener('mouseleave', ()=>{ art.style.transform=''; });
+  }
+</script>
+
+<script type="text/babel" src="tweaks-panel.jsx"></script>
+<script type="text/babel" src="tweaks.jsx"></script>
+
+</body>
+</html>
