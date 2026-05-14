@@ -147,6 +147,17 @@ document.addEventListener('DOMContentLoaded', async function() {
     // preserve ordering (React before ReactDOM before Babel before text/babel).
     const doc = new DOMParser().parseFromString(template, 'text/html');
     document.documentElement.replaceWith(doc.documentElement);
+    // Safari does not re-process <link rel="icon"> after a replaceWith — force it.
+    (function() {
+      var existing = document.querySelectorAll('link[rel="icon"], link[rel="shortcut icon"]');
+      existing.forEach(function(l) { l.parentNode && l.parentNode.removeChild(l); });
+      var link = document.createElement('link');
+      link.rel = 'icon';
+      link.type = 'image/png';
+      link.sizes = '256x256';
+      link.href = '/2026/favicon.png';
+      document.head.appendChild(link);
+    })();
     const dead = Array.from(document.scripts);
     for (const old of dead) {
       const s = document.createElement('script');
