@@ -147,16 +147,32 @@ document.addEventListener('DOMContentLoaded', async function() {
     // preserve ordering (React before ReactDOM before Babel before text/babel).
     const doc = new DOMParser().parseFromString(template, 'text/html');
     document.documentElement.replaceWith(doc.documentElement);
-    // Safari does not re-process <link rel="icon"> after a replaceWith — force it.
+    // Safari ignores new <link rel="icon"> elements created after a replaceWith.
+    // Nudging the href of the existing link (blank then real URL) forces a re-evaluation.
     (function() {
-      var existing = document.querySelectorAll('link[rel="icon"], link[rel="shortcut icon"]');
-      existing.forEach(function(l) { l.parentNode && l.parentNode.removeChild(l); });
-      var link = document.createElement('link');
-      link.rel = 'icon';
-      link.type = 'image/png';
-      link.sizes = '256x256';
-      link.href = '/2026/favicon.png';
-      document.head.appendChild(link);
+      var nudge = function() {
+        var link = document.querySelector('link[rel="icon"]');
+        if (!link) {
+          link = document.createElement('link');
+          link.rel = 'icon';
+          link.type = 'image/png';
+          link.sizes = '256x256';
+          document.head.appendChild(link);
+        }
+        link.href = '';
+        link.href = '/2026/favicon.png';
+        // Also ensure apple-touch-icon is present for Safari
+        var touch = document.querySelector('link[rel="apple-touch-icon"]');
+        if (!touch) {
+          touch = document.createElement('link');
+          touch.rel = 'apple-touch-icon';
+          touch.sizes = '256x256';
+          document.head.appendChild(touch);
+        }
+        touch.href = '/2026/favicon.png';
+      };
+      nudge();
+      setTimeout(nudge, 100);
     })();
     const dead = Array.from(document.scripts);
     for (const old of dead) {
